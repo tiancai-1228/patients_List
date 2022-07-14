@@ -1,25 +1,31 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface homeSlice {
-  data: any;
+  listData?: [];
 }
 
 export const homeSlice = createSlice({
   name: "home",
   initialState: {
     value: {
-      data: "",
+      listData: undefined,
     } as homeSlice,
   },
 
   reducers: {
-    getdate: (state, _action: any) => ({
+    getdate: (state) => ({
       ...state,
+      error: "",
+    }),
+
+    setdate: (state, _action: any) => ({
+      ...state,
+      value: { ...state.value, listData: _action.payload.listData },
       error: "",
     }),
   },
 });
 
-export const { getdate } = homeSlice.actions;
+export const { getdate, setdate } = homeSlice.actions;
 
 export default homeSlice.reducer;

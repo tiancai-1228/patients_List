@@ -1,6 +1,15 @@
 import { customAxios } from "../index";
 
+interface homeProp {
+  orderId: string;
+}
+
 const getUserList = () =>
   customAxios.get(`https://robbt-list.herokuapp.com/userlist`, {});
 
-export { getUserList };
+const getOrder = ({ orderId }: homeProp) =>
+  customAxios.get(`https://robbt-list.herokuapp.com/orders`, {
+    params: { orderId },
+  });
+
+export { getUserList, getOrder };
