@@ -33,7 +33,6 @@ export const homeSlice = createSlice({
       }
     ) => ({
       ...state,
-      isLoading: true,
       error: "",
     }),
 
@@ -44,13 +43,17 @@ export const homeSlice = createSlice({
       }
     ) => ({
       ...state,
-      isLoading: true,
       error: "",
     }),
 
-    setSuccess: (state, _action: any) => ({
+    loadingState: (state, _action: any) => ({
       ...state,
-      isLoading: false,
+      isLoading: _action.payload.lodaingState,
+      error: "",
+    }),
+
+    successfulData: (state, _action: any) => ({
+      ...state,
       value: { ...state.value, ..._action.payload },
       error: "",
     }),
@@ -59,10 +62,11 @@ export const homeSlice = createSlice({
 
 export const {
   getdate,
-  setSuccess,
+  successfulData,
   getOrderList,
   postCreatOrder,
   postUpdateOrder,
+  loadingState,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

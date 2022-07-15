@@ -7,6 +7,7 @@ import {
   getOrderList,
   postCreatOrder,
   postUpdateOrder,
+  loadingState,
 } from "../redux/slices/homeSlice";
 import List from "@mui/material/List";
 import ListSubheader from "@mui/material/ListSubheader";
@@ -20,6 +21,8 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import CircularProgress from "@mui/material/CircularProgress";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 import {
   AppBar,
   Dialog,
@@ -32,6 +35,7 @@ import {
 const Home: NextPage = () => {
   const dispatch = useAppDispatch();
   const { listData, orderData } = useAppSelector((state) => state.home.value);
+  const { isLoading } = useAppSelector((state) => state.home);
   const [isDialog, setIsDialog] = useState(false);
   const [userListData, setUserListData] = useState<any>([]);
   const [DialogListData, setDialogListData] = useState([]);
@@ -66,6 +70,14 @@ const Home: NextPage = () => {
     if (orderData) {
       setDialogListData(orderData);
       setIsDialog(true);
+    }
+    if (isLoading) {
+      dispatch(loadingState({ lodaingState: false }));
+      if (isAdd) {
+        setIsAdd(false);
+      } else {
+        setCurrentDialog({ id: "", message: "" });
+      }
     }
   }, [orderData]);
 
@@ -186,7 +198,6 @@ const Home: NextPage = () => {
           message: messageData.current,
         })
       );
-      setIsAdd(false);
     } else {
       setMessageCheck(true);
     }
@@ -206,8 +217,6 @@ const Home: NextPage = () => {
           })
         );
       }
-
-      setCurrentDialog({ id: "", message: "" });
     } else {
       setEditCheck(true);
     }
@@ -215,6 +224,11 @@ const Home: NextPage = () => {
 
   return (
     <div className={styles.app}>
+      {isLoading && (
+        <div className={styles.bg}>
+          <CircularProgress color="inherit" className={styles.bgloading} />
+        </div>
+      )}
       {listData ? (
         <div className={styles.list}>
           <List
@@ -229,7 +243,10 @@ const Home: NextPage = () => {
           </List>
         </div>
       ) : (
-        <CircularProgress color="inherit" className={styles.loading} />
+        <div className={styles.loading}>
+          <CircularProgress color="inherit" />
+          <h1>heroku server is sleeping please wait {`><`} </h1>
+        </div>
       )}
 
       <Dialog
@@ -267,8 +284,9 @@ const Home: NextPage = () => {
             </Button>
           </Toolbar>
         </AppBar>
-
-        {DialogListData && dialogList()}
+        <DialogContent dividers={true}>
+          {DialogListData && dialogList()}
+        </DialogContent>
         {isAdd && (
           <Box className={styles.creat}>
             <TextField
