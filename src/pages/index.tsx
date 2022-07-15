@@ -33,14 +33,15 @@ const Home: NextPage = () => {
   const dispatch = useAppDispatch();
   const { listData, orderData } = useAppSelector((state) => state.home.value);
   const [isDialog, setIsDialog] = useState(false);
-  const [DialogListData, setDialogListData] = useState([]);
   const [userListData, setUserListData] = useState<any>([]);
+  const [DialogListData, setDialogListData] = useState([]);
   const [isAdd, setIsAdd] = useState(false);
 
   const [currentUser, setCurrentUser] = useState({
     id: "",
     name: "",
     orderId: "",
+    userIndex: 0,
   });
   const [currentDialog, setCurrentDialog] = useState({
     id: "",
@@ -71,7 +72,10 @@ const Home: NextPage = () => {
   const patientsList = () => {
     if (userListData) {
       return userListData.map(
-        (user: { id: string; name: string; orderId: string }) => (
+        (
+          user: { id: string; name: string; orderId: string },
+          index: number
+        ) => (
           <ListItemButton
             key={user.id}
             onClick={() => {
@@ -80,6 +84,7 @@ const Home: NextPage = () => {
                 id: user.id,
                 name: user.name,
                 orderId: user.orderId,
+                userIndex: index,
               });
             }}
           >
@@ -197,7 +202,7 @@ const Home: NextPage = () => {
           postUpdateOrder({
             orderId: currentDialog.id,
             message: editData.current,
-            orders: currentUser.orderId,
+            orders: userListData[currentUser.userIndex].orderId,
           })
         );
       }
