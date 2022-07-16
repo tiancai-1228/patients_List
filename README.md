@@ -36,16 +36,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Tech Stack
 
 Front-end
-Language: Typescript
 
-Framework: React.js Next.js material ui
+- Language: `Typescript`
+- Framework: `React.js` `Next.js` `material ui`
+- Redux: `React Redux`, `Redux Toolkit`, `Redux Saga`
+- Deploy on `Vercel`
 
-Redux: React Redux, Redux Toolkit, Redux Saga
-
-Deploy on Vercel
-
-Back-End:Nodejs + Express
-
-db: clearDB
-
-Deploy on Heroku
+- Back-End:`Nodejs `+ `Express`
+- db: `clearDB`
+- Deploy on `Heroku`
