@@ -2,35 +2,31 @@ import type { NextPage } from "next";
 import React, { useEffect, useState, useRef } from "react";
 import styles from "../styles/Home.module.css";
 import { useAppDispatch, useAppSelector } from "../hook/useAppRedux";
-import {
-  getdate,
-  getOrderList,
-  postCreatOrder,
-  postUpdateOrder,
-  loadingState,
-} from "../redux/slices/homeSlice";
-import List from "@mui/material/List";
-import ListSubheader from "@mui/material/ListSubheader";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import Divider from "@mui/material/Divider";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import CloseIcon from "@mui/icons-material/Close";
-import CircularProgress from "@mui/material/CircularProgress";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
+import { getdate, getOrderList, loadingState } from "../redux/slices/homeSlice";
+
+import CreateOrder from "../componet/createOrder";
+import EditOrder from "../componet/editOrder";
+import PageLoading from "../componet/pageLoading";
+
 import {
   AppBar,
   Dialog,
   Button,
   ListItem,
-  TextField,
-  Box,
+  DialogContent,
+  CircularProgress,
+  Typography,
+  IconButton,
+  Toolbar,
+  Divider,
+  Avatar,
+  ListItemAvatar,
+  ListItemText,
+  ListItemButton,
+  ListSubheader,
+  List,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Home: NextPage = () => {
   const dispatch = useAppDispatch();
@@ -40,21 +36,11 @@ const Home: NextPage = () => {
   const [userListData, setUserListData] = useState<any>([]);
   const [DialogListData, setDialogListData] = useState([]);
   const [isAdd, setIsAdd] = useState(false);
-
-  const [currentUser, setCurrentUser] = useState({
-    id: "",
-    name: "",
-    orderId: "",
-    userIndex: 0,
-  });
-  const [currentDialog, setCurrentDialog] = useState({
+  const [currentUser, setCurrentUser] = useState(0);
+  const [currentOrder, setCurrentOrder] = useState({
     id: "",
     message: "",
   });
-  const [messageCheck, setMessageCheck] = useState(false);
-  const [editCheck, setEditCheck] = useState(false);
-  const messageData = useRef("");
-  const editData = useRef("");
 
   useEffect(() => {
     dispatch(getdate());
@@ -76,7 +62,7 @@ const Home: NextPage = () => {
       if (isAdd) {
         setIsAdd(false);
       } else {
-        setCurrentDialog({ id: "", message: "" });
+        setCurrentOrder({ id: "", message: "" });
       }
     }
   }, [orderData]);
@@ -92,12 +78,7 @@ const Home: NextPage = () => {
             key={user.id}
             onClick={() => {
               dispatch(getOrderList({ orderId: user.orderId }));
-              setCurrentUser({
-                id: user.id,
-                name: user.name,
-                orderId: user.orderId,
-                userIndex: index,
-              });
+              setCurrentUser(index);
             }}
           >
             <ListItemAvatar>
@@ -119,41 +100,13 @@ const Home: NextPage = () => {
         (order: { orderId: string; message: string }) => (
           <List key={order.orderId}>
             <ListItem>
-              {currentDialog.id == order.orderId ? (
-                <Box className={styles.creat}>
-                  <TextField
-                    error={editCheck}
-                    variant="standard"
-                    label={editCheck && "醫囑不可為空"}
-                    defaultValue={currentDialog.message}
-                    onChange={(val) => {
-                      editData.current = val.target.value;
-                    }}
-                    className={styles.messageInput}
-                  />
-                  <div className={styles.messageBtn}>
-                    <Button
-                      autoFocus
-                      color="inherit"
-                      onClick={() => {
-                        setCurrentDialog({ id: "", message: "" });
-                        editData.current = "";
-                        setEditCheck(false);
-                      }}
-                    >
-                      取消
-                    </Button>
-                    <Button
-                      autoFocus
-                      color="inherit"
-                      onClick={() => {
-                        handelEditDialog();
-                      }}
-                    >
-                      確定
-                    </Button>
-                  </div>
-                </Box>
+              {currentOrder.id == order.orderId ? (
+                <EditOrder
+                  setCurrentOrder={setCurrentOrder}
+                  currentOrder={currentOrder}
+                  orders={userListData[currentUser].orderId}
+                  initMessage={order.message}
+                />
               ) : (
                 <>
                   <ListItemText primary={`${order.message}`} />
@@ -161,11 +114,10 @@ const Home: NextPage = () => {
                     autoFocus
                     color="inherit"
                     onClick={() => {
-                      setCurrentDialog({
+                      setCurrentOrder({
                         id: order.orderId,
                         message: order.message,
                       });
-                      editData.current = order.message;
                     }}
                   >
                     編輯
@@ -182,53 +134,13 @@ const Home: NextPage = () => {
 
   const handelCloseDialog = () => {
     setIsDialog(false);
-    setMessageCheck(false);
-    setEditCheck(false);
     setIsAdd(false);
-    setCurrentDialog({ id: "", message: "" });
-    editData.current = "";
-    messageData.current = "";
-  };
-
-  const handelCreateOrder = () => {
-    if (messageData.current) {
-      dispatch(
-        postCreatOrder({
-          user: currentUser,
-          message: messageData.current,
-        })
-      );
-    } else {
-      setMessageCheck(true);
-    }
-  };
-
-  const handelEditDialog = () => {
-    if (editData.current) {
-      if (editData.current == currentDialog.message) {
-        setCurrentDialog({ id: "", message: "" });
-        return;
-      } else {
-        dispatch(
-          postUpdateOrder({
-            orderId: currentDialog.id,
-            message: editData.current,
-            orders: userListData[currentUser.userIndex].orderId,
-          })
-        );
-      }
-    } else {
-      setEditCheck(true);
-    }
+    setCurrentOrder({ id: "", message: "" });
   };
 
   return (
     <div className={styles.app}>
-      {isLoading && (
-        <div className={styles.bg}>
-          <CircularProgress color="inherit" className={styles.bgloading} />
-        </div>
-      )}
+      {isLoading && <PageLoading />}
       {listData ? (
         <div className={styles.list}>
           <List
@@ -269,7 +181,6 @@ const Home: NextPage = () => {
             >
               <CloseIcon />
             </IconButton>
-
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
               DIALOG
             </Typography>
@@ -288,39 +199,10 @@ const Home: NextPage = () => {
           {DialogListData && dialogList()}
         </DialogContent>
         {isAdd && (
-          <Box className={styles.creat}>
-            <TextField
-              error={messageCheck}
-              label={messageCheck ? "醫囑不可為空" : "請輸入醫囑"}
-              variant="standard"
-              onChange={(val) => {
-                messageData.current = val.target.value;
-              }}
-              className={styles.messageInput}
-            />
-            <div className={styles.messageBtn}>
-              <Button
-                autoFocus
-                color="inherit"
-                onClick={() => {
-                  setMessageCheck(false);
-                  setIsAdd(false);
-                  messageData.current = "";
-                }}
-              >
-                取消
-              </Button>
-              <Button
-                autoFocus
-                color="inherit"
-                onClick={() => {
-                  handelCreateOrder();
-                }}
-              >
-                確定
-              </Button>
-            </div>
-          </Box>
+          <CreateOrder
+            setIsAdd={setIsAdd}
+            userData={userListData[currentUser]}
+          />
         )}
       </Dialog>
     </div>
