@@ -42,6 +42,7 @@ Front-end
 - Redux: `React Redux`, `Redux Toolkit`, `Redux Saga`
 - Deploy on `Vercel`
 
-- Back-End:`Nodejs `+ `Express`
+Back-End:`Nodejs `+ `Express`
+
 - db: `clearDB`
 - Deploy on `Heroku`
